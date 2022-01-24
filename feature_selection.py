@@ -35,6 +35,51 @@ class feature_selection():
 
                 self.df.drop(labels = constant_cat, axis = 1, inplace = True)
 
+    def Quasi_Constant(self,variable, show = False):
+
+
+        if variable == 'numerik':
+
+            num_features = [cols for cols in self.df.columns if self.df[cols].dtypes != 'o']
+
+            constant_features = [cols for cols in num_features if self.df[cols].std() == 0]
+            
+            if show:
+
+                print(constant_features)
+
+        elif variable == 'kategorik':
+
+            cat_features = [cols for cols in self.df.columns if self.df[cols].dtypes == 'o']
+            
+            cat_const = []
+
+            for cols in cat_features:
+
+                temp_df = (self.df[cols].value_counts() / len(self.df)).sort_values(ascending = False)
+
+                temp_df = temp_df.values[0]
+
+                if temp_df > 0.98:
+
+                    cat_const.append(cols)
+            
+            if show:
+
+                print(cat_const)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
