@@ -68,6 +68,28 @@ class feature_selection():
 
                 print(cat_const)
 
+    def Correlation(self, df,threshold, how = None):
+
+        corr_features = list()
+
+        corr_df =  df.corr()
+
+        for i in range(len(df.columns)):
+
+            for j in range(len(df.columns)):
+
+                corr_nums = corr_df.iloc[i,j]
+
+                if corr_nums > threshold:
+
+                    corr_features.append((corr_df.columns[i],corr_df.columns[j], corr_nums))
+
+        return corr_features    
+
+
+
+
+
 
 
 
