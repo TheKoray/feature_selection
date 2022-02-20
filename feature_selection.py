@@ -70,6 +70,12 @@ class feature_selection():
 
     def Correlation(self, df,threshold, how = None):
 
+        """
+        Datamızdaki yüksek korelasyonlu deeğişkenleri bulmamıza yarar.
+        threshold = Bizim belirlediğimiz Korelasyon değerimiz.
+        how = Bulacağımız yüksek korelasyonlu değişkenlerimize ne yapacağımız bildirir.
+        """
+
         corr_features = list()
 
         corr_df =  df.corr()
