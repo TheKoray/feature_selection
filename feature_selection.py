@@ -82,7 +82,7 @@ class feature_selection():
 
         for i in range(len(df.columns)):
 
-            for j in range(len(df.columns)):
+            for j in range(i):
 
                 corr_nums = corr_df.iloc[i,j]
 
