@@ -90,7 +90,22 @@ class feature_selection():
 
                     corr_features.append((corr_df.columns[i],corr_df.columns[j], corr_nums))
 
+        if how == 'drop':
+
+            columns = []
+
+            for i,j,_ in corr_features:
+
+                columns.append(i)
+                columns.append(j)
+            
+            df.drop(columns, axis = 1, inplace = True)
+
+
         return corr_features    
+
+    
+
 
 
 
