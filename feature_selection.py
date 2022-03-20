@@ -1,3 +1,8 @@
+import pandas as pd 
+import numpy as np 
+from sklearn.feature_selection import mutual_info_classif,mutual_info_regression
+from sklearn.feature_selection import SelectKBest, SelectPercentile
+
 
 class feature_selection():
 
@@ -98,7 +103,8 @@ class feature_selection():
         if how == 'drop':
 
             columns = []
-
+           
+# corr_features bize 3 değer döner.Biz i ve j'yi alacağız.Bunlar da columns değerleri.
             for i,j,_ in corr_features:
 
                 columns.append(i)
@@ -111,9 +117,55 @@ class feature_selection():
 
     #---------------------------- İstatiksel Filtreleme -----------------------------------------
     
-    def Statistic_Filter(self):
+    def Mutual_Information(self,train_x, train_y,model=None, k=5, plot = False):
+#from sklearn.feature_selection import mutual_info_classif
+#from sklearn.feature_selection import SelectKBest, SelectPercentile 
+        """
+        Mutual information kullanarak istatiksel olaran train setimizi filtreliyoruz.
+        k kadar en iyi değeri "SelectKBest" ile alıyoruz. 
+        """
 
-        pass
+        if model == 'class':
+
+            mi = mutual_info_classif(train_x, train_y)
+            mi_table = pd.Series(mi, index = train_x.columns)
+            mi_table.sort_values(ascending=False, inplace=True)
+
+            sel_kbest = SelectKBest(mutual_info_classif, k = k)
+            sel_kbest.fit(train_x, train_y)
+             
+            if plot:
+                return mi_table
+
+        elif model == "reg":
+
+
+            mi = mutual_info_regression(train_x, train_y)
+            mi_table = pd.Series(mi, index = train_x.columns)
+            mi_table.sort_values(ascending = False, inplace= True)
+
+            sel_kbest = SelectKBest(mutual_info_regression, k = k)
+            sel_kbest.fit(train_x, train_y)
+
+            if plot:
+                return mi_table
+        
+        return train_x[sel_kbest.get_support()]
+
+
+
+            
+
+
+
+
+
+
+
+
+            
+
+        
 
     
 
