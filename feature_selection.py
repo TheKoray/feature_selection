@@ -37,6 +37,11 @@ class feature_selection():
 
     def Quasi_Constant(self,variable, show = False):
 
+        """
+        variable = Değişkenimizin tipi.
+        
+        """
+
 
         if variable == 'numerik':
 
@@ -102,7 +107,13 @@ class feature_selection():
             df.drop(columns, axis = 1, inplace = True)
 
 
-        return corr_features    
+        return corr_features 
+
+    #---------------------------- İstatiksel Filtreleme -----------------------------------------
+    
+    def Statistic_Filter(self):
+
+        pass
 
     
 
