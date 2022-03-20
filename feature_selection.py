@@ -115,14 +115,18 @@ class feature_selection():
 
         return corr_features 
 
-    #---------------------------- İstatiksel Filtreleme -----------------------------------------
+#------------------------------- İstatiksel Filtreleme -----------------------------------------
     
-    def Mutual_Information(self,train_x, train_y,model=None, k=5, plot = False):
-#from sklearn.feature_selection import mutual_info_classif
-#from sklearn.feature_selection import SelectKBest, SelectPercentile 
+    def Mutual_Information(self,train_x, train_y,model=None, k=5, show = False):
+    #from sklearn.feature_selection import mutual_info_classif
+    #from sklearn.feature_selection import SelectKBest, SelectPercentile 
         """
         Mutual information kullanarak istatiksel olaran train setimizi filtreliyoruz.
         k kadar en iyi değeri "SelectKBest" ile alıyoruz. 
+
+        model = Classification veya Regression
+        k = istatiksel olarak filtreleyerek alacağımız değişken sayısı
+        show = Değişkenlerimizin mutual_info değerlerinin olduğu tablo
         """
 
         if model == 'class':
@@ -134,7 +138,7 @@ class feature_selection():
             sel_kbest = SelectKBest(mutual_info_classif, k = k)
             sel_kbest.fit(train_x, train_y)
              
-            if plot:
+            if show:
                 return mi_table
 
         elif model == "reg":
@@ -147,7 +151,7 @@ class feature_selection():
             sel_kbest = SelectKBest(mutual_info_regression, k = k)
             sel_kbest.fit(train_x, train_y)
 
-            if plot:
+            if show:
                 return mi_table
         
         return train_x[sel_kbest.get_support()]
