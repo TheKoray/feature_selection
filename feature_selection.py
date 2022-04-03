@@ -172,7 +172,7 @@ class feature_selection():
 
                     if cols not in select:
 
-                        model.fit(train_x[[cols] + select], train_y)#select listesinde ki değişkenlerle her değişken fit edilir.
+                        model.fit(train_x[[cols] + select], train_y) #select listesinde ki değişkenlerle her değişken fit edilir.
                         y_pred = model.predict(test_x[[cols]+ select])
                         roc_score = roc_auc_score(test_y, y_pred)
 
@@ -186,7 +186,9 @@ class feature_selection():
 
                     columns.append(cols)
                     score.append(roc_score)
-            # seri elde edip metric değerine göre büyükten küçüğe sıralarız    
+
+            # series elde edip metric skorlarına göre büyükten küçüğe sıralarız.
+            # indexlerde ise değişkenlerimiz olur   
             kx = pd.Series(score, index = columns).sort_values(ascending = False)
             #En yüksek metric score'una sahip olan değişkeni alırız.
             select.append(kx.index[0])
