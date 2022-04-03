@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np 
 from sklearn.feature_selection import mutual_info_classif,mutual_info_regression
 from sklearn.feature_selection import SelectKBest, SelectPercentile
+from sklearn.metrics import roc_auc_score
 
 
 class feature_selection():
@@ -155,6 +156,44 @@ class feature_selection():
                 return mi_table
         
         return train_x[sel_kbest.get_support()]
+
+#---------------------- Wrapper------------------------------------------------
+
+    def StepForward(self,model,k,train_x,train_y,test_x,test_y,show= False):
+    
+        i = 0
+        columns, score, select = [], [], []
+        
+        while i < k: #i k değerinden küçük olana kadar çalışacak.
+
+            for cols in train_x.columns:
+
+                if i != 0: #i 0dan farklı olduğunda değişkenler ile select listesinde seçilen değişkenlerle model oluşturulur.
+
+                    if cols not in select:
+
+                        model.fit(train_x[[cols] + select], train_y)#select listesinde ki değişkenlerle her değişken fit edilir.
+                        y_pred = model.predict(test_x[[cols]+ select])
+                        roc_score = roc_auc_score(test_y, y_pred)
+
+                        columns.append(cols)
+                        score.append(roc_score)
+            
+                else: #i=0 olduğunda çalışır. İlk adımda burası çalışır.Her değişken ile model oluşturulur.
+                    model.fit(train_x[[cols]],train_y)
+                    y_pred = model.predict(test_x[[cols]])
+                    roc_score = roc_auc_score(test_y, y_pred)
+
+                    columns.append(cols)
+                    score.append(roc_score)
+            # seri elde edip metric değerine göre büyükten küçüğe sıralarız    
+            kx = pd.Series(score, index = columns).sort_values(ascending = False)
+            #En yüksek metric score'una sahip olan değişkeni alırız.
+            select.append(kx.index[0])
+
+            i+=1
+        
+        return select
 
 
 
