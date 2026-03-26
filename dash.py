@@ -11,37 +11,56 @@ def update_date_dropdown(rat_rea_bol, model, pathname):
 
     if dfPsi.empty:
         return "Veri bulunamadı."
+    # ... (üst kısımdaki dfPsi çekme kısmı aynı) ...
 
-    # 3. VERİLERİ SAYIYA ÇEVİR (Barların çalışması için şart)
-    # Tablodaki sayısal kolonları seçip sayı tipine zorluyoruz
+    # 3. VERİLERİ SAYIYA ÇEVİR (TOTAL satırını bozmadan)
     cols_to_fix = ['-5','-4','-3','-2','-1','RATING','RATING_ADET','OVERRIDE_ADET','+1','+2','+3','+4','+5']
+    
     for col in cols_to_fix:
         if col in dfPsi.columns:
-            dfPsi[col] = pd.to_numeric(dfPsi[col], errors='coerce').fillna(0)
+            # Sadece "TOTAL" olmayan satırları sayıya çeviriyoruz
+            # Diğer satırları olduğu gibi (string olarak) bırakıyoruz
+            dfPsi[col] = dfPsi[col].apply(lambda x: pd.to_numeric(x, errors='coerce') if x != "TOTAL" else x)
 
-    # 4. BARLAR İÇİN STİL LİSTESİ OLUŞTURMA
+    # 4. BARLAR İÇİN STİL LİSTESİ (TOTAL satırına bar eklememek için kontrol ekliyoruz)
     conditional_styles = []
     
     for col in cols_to_fix:
-        if col == 'RATING': continue # Rating kolonu bar olmasın
+        if col == 'RATING': continue 
         
-        max_val = dfPsi[col].max()
-        if max_val == 0: max_val = 1
+        # Sayısal değerlerin maksimumunu bul (TOTAL'i dahil etme)
+        numeric_values = pd.to_numeric(dfPsi[col], errors='coerce').dropna()
+        real_max = numeric_values.max() if not numeric_values.empty else 1
+        max_val = real_max * 1.2
         
-        # Renk Belirleme: Eksiler kırmızı, Artılar yeşil, Adetler mavi
-        if '-' in col: color = "rgba(255, 0, 0, 0.2)" # Kırmızı
-        elif '+' in col: color = "rgba(0, 128, 0, 0.2)" # Yeşil
-        else: color = "rgba(0, 0, 255, 0.1)" # Mavi (Adetler için)
+        # Renk ve yön belirleme (Aynı kalıyor)
+        if '-' in col: 
+            color, direction = "rgba(255, 69, 0, 0.5)", "270deg"
+        elif '+' in col: 
+            color, direction = "rgba(50, 205, 50, 0.5)", "90deg"
+        else: 
+            color, direction = "rgba(30, 144, 255, 0.4)", "90deg"
 
-        # Her satır için bar yüksekliğini hesapla
         for i in range(len(dfPsi)):
             val = dfPsi.iloc[i][col]
-            percent = (val / max_val) * 100
             
-            conditional_styles.append({
-                'if': {'filter_query': f'{{{col}}} = {val}', 'column_id': col},
-                'background': f'linear-gradient(90deg, {color} {percent}%, transparent {percent}%)',
-            })
+            # EĞER DEĞER "TOTAL" DEĞİLSE VE SAYISALSA BAR EKLE
+            if val != "TOTAL" and pd.notnull(pd.to_numeric(val, errors='coerce')):
+                num_val = float(val)
+                percent = (num_val / max_val) * 100
+                
+                conditional_styles.append({
+                    'if': {'filter_query': f'{{{col}}} = {val}', 'column_id': col},
+                    'background': f'linear-gradient({direction}, {color} 0%, {color} {percent}%, transparent {percent}%, transparent 100%)',
+                })
+            
+            # TOTAL SATIRINI KALINLAŞTIRMAK İÇİN (Opsiyonel)
+            if val == "TOTAL" or dfPsi.iloc[i]['RATING'] == "TOTAL":
+                conditional_styles.append({
+                    'if': {'row_index': i},
+                    'fontWeight': 'bold',
+                    'backgroundColor': 'rgba(240, 240, 240, 0.5)' # Hafif gri arka plan
+                })
 
     # 5. TABLOYU DÖNDÜR
     return dash_table.DataTable(
